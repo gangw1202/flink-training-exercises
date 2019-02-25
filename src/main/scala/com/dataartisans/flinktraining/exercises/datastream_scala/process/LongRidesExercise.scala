@@ -24,8 +24,7 @@ import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
-import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
 import org.apache.flink.util.Collector
 
 /**
@@ -46,8 +45,8 @@ object LongRidesExercise {
     val params = ParameterTool.fromArgs(args)
     val input = params.get("input", ExerciseBase.pathToRideData)
 
-    val maxDelay = 60     // events are out of order by max 60 seconds
-    val speed = 1800      // events of 30 minutes are served every second
+    val maxDelay = 60 // events are out of order by max 60 seconds
+    val speed = 1800 // events of 30 minutes are served every second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment

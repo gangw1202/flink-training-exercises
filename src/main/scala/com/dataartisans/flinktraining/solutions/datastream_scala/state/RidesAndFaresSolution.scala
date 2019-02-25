@@ -46,7 +46,7 @@ object RidesAndFaresSolution {
     val ridesFile = params.get("rides", ExerciseBase.pathToRideData)
     val faresFile = params.get("fares", ExerciseBase.pathToFareData)
 
-    val delay = 60;               // at most 60 seconds of delay
+    val delay = 60; // at most 60 seconds of delay
     val servingSpeedFactor = 1800 // 30 minutes worth of events are served every second
 
     // set up streaming execution environment

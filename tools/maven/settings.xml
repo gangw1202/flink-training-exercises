@@ -15,14 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
 					  http://maven.apache.org/xsd/settings-1.0.0.xsd">
-	<servers>
-		<server>
-			<id>ossrh</id>
-			<username>${sonatype_user}</username>
-			<password>${sonatype_pw}</password>
-		</server>
-	</servers>
+  <servers>
+    <server>
+      <id>ossrh</id>
+      <username>${sonatype_user}</username>
+      <password>${sonatype_pw}</password>
+    </server>
+  </servers>
 </settings>

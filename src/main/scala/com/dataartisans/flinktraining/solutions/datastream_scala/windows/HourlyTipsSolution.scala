@@ -48,7 +48,7 @@ object HourlyTipsSolution {
     val input = params.get("input", ExerciseBase.pathToFareData)
 
     val maxDelay = 60 // events are delayed by at most 60 seconds
-    val speed = 600   // events of 10 minutes are served in 1 second
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up streaming execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -64,7 +64,9 @@ object HourlyTipsSolution {
       .keyBy(_._1)
       .timeWindow(Time.hours(1))
       .reduce(
-        (f1: (Long, Float), f2: (Long, Float)) => { (f1._1, f1._2 + f2._2) },
+        (f1: (Long, Float), f2: (Long, Float)) => {
+          (f1._1, f1._2 + f2._2)
+        },
         new WrapWithWindowInfo())
 
     // max tip total in each hour

@@ -52,7 +52,7 @@ object CheckpointedLongRidesSolution {
     // parse parameters
     val params = ParameterTool.fromArgs(args)
     val input = params.get("input", ExerciseBase.pathToRideData)
-    val speed = 1800       // events of 30 minutes are served every second
+    val speed = 1800 // events of 30 minutes are served every second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment

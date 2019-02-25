@@ -28,16 +28,16 @@ import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.util.Collector
 
 /**
- * Scala reference implementation for the "Popular Places" exercise of the Flink training
- * (http://training.data-artisans.com).
- *
- * The task of the exercise is to identify every five minutes popular areas where many taxi rides
- * arrived or departed in the last 15 minutes.
- *
- * Parameters:
- * -input path-to-input-file
- *
- */
+  * Scala reference implementation for the "Popular Places" exercise of the Flink training
+  * (http://training.data-artisans.com).
+  *
+  * The task of the exercise is to identify every five minutes popular areas where many taxi rides
+  * arrived or departed in the last 15 minutes.
+  *
+  * Parameters:
+  * -input path-to-input-file
+  *
+  */
 object PopularPlacesSolution {
 
   def main(args: Array[String]) {
@@ -47,8 +47,8 @@ object PopularPlacesSolution {
     val input = params.get("input", pathToRideData)
     val popThreshold = params.getInt("threshold", 20)
 
-    val maxDelay = 60     // events are out of order by max 60 seconds
-    val speed = 600       // events of 10 minutes are served in 1 second
+    val maxDelay = 60 // events are out of order by max 60 seconds
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up streaming execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -65,15 +65,17 @@ object PopularPlacesSolution {
       // match ride to grid cell and event type (start or end)
       .map(new GridCellMatcher)
       // partition by cell id and event type
-      .keyBy( k => k )
+      .keyBy(k => k)
       // build sliding window
       .timeWindow(Time.minutes(15), Time.minutes(5))
       // count events in window
-      .apply{ (key: (Int, Boolean), window, vals, out: Collector[(Int, Long, Boolean, Int)]) =>
-        out.collect( (key._1, window.getEnd, key._2, vals.size) )
-      }
+      .apply { (key: (Int, Boolean), window, vals, out: Collector[(Int, Long, Boolean, Int)]) =>
+      out.collect((key._1, window.getEnd, key._2, vals.size))
+    }
       // filter by popularity threshold
-      .filter( c => { c._4 >= popThreshold } )
+      .filter(c => {
+      c._4 >= popThreshold
+    })
       // map grid cell to coordinates
       .map(new GridToCoordinates)
 
@@ -85,9 +87,9 @@ object PopularPlacesSolution {
   }
 
   /**
-   * Map taxi ride to grid cell and event type.
-   * Start records use departure location, end record use arrival location.
-   */
+    * Map taxi ride to grid cell and event type.
+    * Start records use departure location, end record use arrival location.
+    */
   class GridCellMatcher extends MapFunction[TaxiRide, (Int, Boolean)] {
 
     def map(taxiRide: TaxiRide): (Int, Boolean) = {
@@ -104,8 +106,8 @@ object PopularPlacesSolution {
   }
 
   /**
-   * Maps the grid cell id back to longitude and latitude coordinates.
-   */
+    * Maps the grid cell id back to longitude and latitude coordinates.
+    */
   class GridToCoordinates extends MapFunction[
     (Int, Long, Boolean, Int),
     (Float, Float, Long, Boolean, Int)] {

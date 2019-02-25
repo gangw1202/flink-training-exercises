@@ -69,8 +69,8 @@ object NearestTaxiSolution {
     val params = ParameterTool.fromArgs(args)
     val ridesFile = params.get("input", ExerciseBase.pathToRideData)
 
-    val maxEventDelay = 60        // events are out of order by at most 60 seconds
-    val servingSpeedFactor = 600  // 10 minutes worth of events are served every second
+    val maxEventDelay = 60 // events are out of order by at most 60 seconds
+    val servingSpeedFactor = 600 // 10 minutes worth of events are served every second
 
     // set up streaming execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -122,13 +122,13 @@ object NearestTaxiSolution {
   // Note that in order to have consistent results after a restore from a checkpoint, the
   // behavior of this method must be deterministic, and NOT depend on characterisitcs of an
   // individual sub-task.
-  class QueryFunction extends KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)]{
+  class QueryFunction extends KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)] {
 
     override def processElement(ride: TaxiRide,
                                 readOnlyContext: KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)]#ReadOnlyContext,
                                 out: Collector[(Long, Long, Float)]): Unit =
       if (!ride.isStart) for (entry: Entry[Long, Query] <-
-             readOnlyContext.getBroadcastState(queryDescriptor).immutableEntries()) {
+                                readOnlyContext.getBroadcastState(queryDescriptor).immutableEntries()) {
         val q = entry.getValue
         val dist = ride.getEuclideanDistance(q.longitude, q.latitude).toFloat
         out.collect((entry.getKey, ride.taxiId, dist))

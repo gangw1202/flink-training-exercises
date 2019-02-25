@@ -52,7 +52,7 @@ object TravelTimePrediction {
     val params = ParameterTool.fromArgs(args)
     val input = params.getRequired("input")
 
-    val speed = 600   // events of 10 minutes are served in 1 second
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -107,7 +107,7 @@ object TravelTimePrediction {
         // we have a start event: Predict travel time
         val predictedTime: Int = model.predictTravelTime(direction, distance)
         // emit prediction
-        out.collect( (ride.rideId, predictedTime) )
+        out.collect((ride.rideId, predictedTime))
       }
       else {
         // we have an end event: Update model

@@ -21,13 +21,13 @@ import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.api.scala._
 
 /**
- * Scala reference implementation for the "Mail Count" exercise of the Flink training.
- * The task of the exercise is to count the number of mails sent for each month and email address.
- *
- * Required parameters:
- * --input path-to-input-directory
- *
- */
+  * Scala reference implementation for the "Mail Count" exercise of the Flink training.
+  * The task of the exercise is to count the number of mails sent for each month and email address.
+  *
+  * Required parameters:
+  * --input path-to-input-directory
+  *
+  */
 object MailCount {
   def main(args: Array[String]) {
 
@@ -43,17 +43,19 @@ object MailCount {
       input,
       lineDelimiter = MBoxParser.MAIL_RECORD_DELIM,
       fieldDelimiter = MBoxParser.MAIL_FIELD_DELIM,
-      includedFields = Array(1,2)
+      includedFields = Array(1, 2)
     )
 
     mails
-      .map { m => (
-                    // extract month from time string
-                    m._1.substring(0, 7),
-                    // extract email address from sender
-                    m._2.substring(m._2.lastIndexOf("<") + 1, m._2.length - 1) ) }
+      .map { m =>
+        (
+          // extract month from time string
+          m._1.substring(0, 7),
+          // extract email address from sender
+          m._2.substring(m._2.lastIndexOf("<") + 1, m._2.length - 1))
+      }
       // group by month and sender and count the number of records per group
-      .groupBy(0, 1).reduceGroup { ms => ms.foldLeft(("","",0))( (c, m) => (m._1, m._2, c._3+1)) }
+      .groupBy(0, 1).reduceGroup { ms => ms.foldLeft(("", "", 0))((c, m) => (m._1, m._2, c._3 + 1)) }
       // print the result
       .print
 

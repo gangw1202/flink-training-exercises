@@ -22,11 +22,10 @@ import java.util
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.TaxiRide
 import com.dataartisans.flinktraining.exercises.datastream_java.sources.TaxiRideSource
 import com.dataartisans.flinktraining.exercises.datastream_java.utils.GeoUtils
-import org.apache.flink.api.common.functions.{RuntimeContext, MapFunction}
+import org.apache.flink.api.common.functions.{MapFunction, RuntimeContext}
 import org.apache.flink.api.java.utils.ParameterTool
-import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.TimeCharacteristic
-import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
+import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.connectors.elasticsearch2._
 import org.apache.flink.util.Collector
@@ -55,8 +54,8 @@ object PopularPlacesToES {
     val input = params.getRequired("input")
 
     val popThreshold = 20 // threshold for popular places
-    val maxDelay = 60     // events are out of order by max 60 seconds
-    val speed = 600       // events of 10 minutes are served in 1 second
+    val maxDelay = 60 // events are out of order by max 60 seconds
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up streaming execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -72,15 +71,17 @@ object PopularPlacesToES {
       // match ride to grid cell and event type (start or end)
       .map(new GridCellMatcher)
       // partition by cell id and event type
-      .keyBy( k => k )
+      .keyBy(k => k)
       // build sliding window
       .timeWindow(Time.minutes(15), Time.minutes(5))
       // count events in window
-      .apply{ (key: (Int, Boolean), window, vals, out: Collector[(Int, Long, Boolean, Int)]) =>
-      out.collect( (key._1, window.getEnd, key._2, vals.size) )
+      .apply { (key: (Int, Boolean), window, vals, out: Collector[(Int, Long, Boolean, Int)]) =>
+      out.collect((key._1, window.getEnd, key._2, vals.size))
     }
       // filter by popularity threshold
-      .filter( c => { c._4 >= popThreshold } )
+      .filter(c => {
+      c._4 >= popThreshold
+    })
       // map grid cell to coordinates
       .map(new GridToCoordinates)
 

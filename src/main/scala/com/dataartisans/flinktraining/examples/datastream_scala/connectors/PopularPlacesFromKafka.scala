@@ -29,14 +29,14 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011
 import org.apache.flink.util.Collector
 
 /**
- * Scala reference implementation for the "Popular Places" exercise of the Flink training
- * (http://training.data-artisans.com).
- *
- * The task of the exercise is to read taxi ride records from an Apache Kafka topic and to identify
- * every five minutes popular areas where many taxi rides arrived or departed in the last 15 minutes.
- * The input is read from a Kafka topic.
- *
- */
+  * Scala reference implementation for the "Popular Places" exercise of the Flink training
+  * (http://training.data-artisans.com).
+  *
+  * The task of the exercise is to read taxi ride records from an Apache Kafka topic and to identify
+  * every five minutes popular areas where many taxi rides arrived or departed in the last 15 minutes.
+  * The input is read from a Kafka topic.
+  *
+  */
 object PopularPlacesFromKafka {
 
   private val LOCAL_ZOOKEEPER_HOST = "localhost:2181"
@@ -62,9 +62,9 @@ object PopularPlacesFromKafka {
 
     // create a Kafka consumer
     val consumer = new FlinkKafkaConsumer011[TaxiRide](
-        RideCleansingToKafka.CLEANSED_RIDES_TOPIC,
-        new TaxiRideSchema,
-        kafkaProps)
+      RideCleansingToKafka.CLEANSED_RIDES_TOPIC,
+      new TaxiRideSchema,
+      kafkaProps)
     // configure timestamp and watermark assigner
     consumer.assignTimestampsAndWatermarks(new TaxiRideTSAssigner)
 
@@ -76,15 +76,17 @@ object PopularPlacesFromKafka {
       // match ride to grid cell and event type (start or end)
       .map(new GridCellMatcher)
       // partition by cell id and event type
-      .keyBy( k => k )
+      .keyBy(k => k)
       // build sliding window
       .timeWindow(Time.minutes(15), Time.minutes(5))
       // count events in window
-      .apply{ (key: (Int, Boolean), window, vals, out: Collector[(Int, Long, Boolean, Int)]) =>
-        out.collect( (key._1, window.getEnd, key._2, vals.size) )
-      }
+      .apply { (key: (Int, Boolean), window, vals, out: Collector[(Int, Long, Boolean, Int)]) =>
+      out.collect((key._1, window.getEnd, key._2, vals.size))
+    }
       // filter by popularity threshold
-      .filter( c => { c._4 >= popThreshold } )
+      .filter(c => {
+      c._4 >= popThreshold
+    })
       // map grid cell to coordinates
       .map(new GridToCoordinates)
 
@@ -96,21 +98,21 @@ object PopularPlacesFromKafka {
   }
 
   /**
-   * Assigns timestamps to TaxiRide records.
-   * Watermarks are periodically assigned, a fixed time interval behind the max timestamp.
-   */
+    * Assigns timestamps to TaxiRide records.
+    * Watermarks are periodically assigned, a fixed time interval behind the max timestamp.
+    */
   class TaxiRideTSAssigner
-      extends BoundedOutOfOrdernessTimestampExtractor[TaxiRide](Time.seconds(MAX_EVENT_DELAY)) {
+    extends BoundedOutOfOrdernessTimestampExtractor[TaxiRide](Time.seconds(MAX_EVENT_DELAY)) {
 
     override def extractTimestamp(ride: TaxiRide): Long = {
-      if(ride.isStart) ride.startTime.getMillis else ride.endTime.getMillis
+      if (ride.isStart) ride.startTime.getMillis else ride.endTime.getMillis
     }
   }
 
   /**
-   * Map taxi ride to grid cell and event type.
-   * Start records use departure location, end record use arrival location.
-   */
+    * Map taxi ride to grid cell and event type.
+    * Start records use departure location, end record use arrival location.
+    */
   class GridCellMatcher extends MapFunction[TaxiRide, (Int, Boolean)] {
 
     def map(taxiRide: TaxiRide): (Int, Boolean) = {
@@ -127,8 +129,8 @@ object PopularPlacesFromKafka {
   }
 
   /**
-   * Maps the grid cell id back to longitude and latitude coordinates.
-   */
+    * Maps the grid cell id back to longitude and latitude coordinates.
+    */
   class GridToCoordinates extends MapFunction[
     (Int, Long, Boolean, Int),
     (Float, Float, Long, Boolean, Int)] {

@@ -18,8 +18,8 @@ package com.dataartisans.flinktraining.exercises.datastream_scala.cep
 
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.TaxiRide
 import com.dataartisans.flinktraining.exercises.datastream_java.sources.CheckpointedTaxiRideSource
-import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, MissingSolutionException}
 import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBase._
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, MissingSolutionException}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.cep.scala.pattern.Pattern
 import org.apache.flink.cep.scala.{CEP, PatternStream}
@@ -46,7 +46,7 @@ object LongRidesExercise {
     val params = ParameterTool.fromArgs(args)
     val input = params.get("input", pathToRideData)
 
-    val speed = 600   // events of 10 minutes are served in 1 second
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -88,6 +88,6 @@ object LongRidesExercise {
 
     throw new MissingSolutionException();
 
-//    env.execute("Long Taxi Rides (CEP)")
+    //    env.execute("Long Taxi Rides (CEP)")
   }
 }

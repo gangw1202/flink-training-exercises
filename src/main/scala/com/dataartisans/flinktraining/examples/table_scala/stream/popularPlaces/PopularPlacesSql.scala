@@ -15,8 +15,8 @@
  */
 package com.dataartisans.flinktraining.examples.table_scala.stream.popularPlaces
 
-import com.dataartisans.flinktraining.exercises.datastream_java.utils.GeoUtils.{IsInNYC, ToCellId, ToCoords}
 import com.dataartisans.flinktraining.examples.table_java.sources.TaxiRideTableSource
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.GeoUtils.{IsInNYC, ToCellId, ToCoords}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.TimeCharacteristic
@@ -32,7 +32,7 @@ object PopularPlacesSql {
     val params = ParameterTool.fromArgs(args)
     val input = params.getRequired("input")
 
-    val maxEventDelay = 60       // events are out of order by max 60 seconds
+    val maxEventDelay = 60 // events are out of order by max 60 seconds
     val servingSpeedFactor = 600 // events of 10 minutes are served in 1 second
 
     // set up streaming execution environment

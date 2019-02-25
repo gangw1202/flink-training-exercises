@@ -18,11 +18,9 @@ package com.dataartisans.flinktraining.exercises.datastream_scala.state
 
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.{TaxiFare, TaxiRide}
 import com.dataartisans.flinktraining.exercises.datastream_java.sources.{TaxiFareSource, TaxiRideSource}
-import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, MissingSolutionException}
 import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBase._
-import org.apache.flink.api.common.state.{ValueState, ValueStateDescriptor}
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, MissingSolutionException}
 import org.apache.flink.api.java.utils.ParameterTool
-import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.functions.co.RichCoFlatMapFunction
 import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
@@ -47,7 +45,7 @@ object RidesAndFaresExercise {
     val ridesFile = params.get("rides", ExerciseBase.pathToRideData)
     val faresFile = params.get("fares", ExerciseBase.pathToFareData)
 
-    val delay = 60;               // at most 60 seconds of delay
+    val delay = 60; // at most 60 seconds of delay
     val servingSpeedFactor = 1800 // 30 minutes worth of events are served every second
 
     // set up streaming execution environment

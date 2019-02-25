@@ -24,14 +24,14 @@ import org.apache.flink.table.api.scala._
 import org.apache.flink.types.Row
 
 /**
- * Scala reference implementation for the "Member of the Month" exercise of the Flink training.
- * The task of the exercise is to identify for each month the email address that sent the most
- * emails to the Flink developer mailing list.
- *
- * Required parameters:
- * --input path-to-input-directory
- *
- */
+  * Scala reference implementation for the "Member of the Month" exercise of the Flink training.
+  * The task of the exercise is to identify for each month the email address that sent the most
+  * emails to the Flink developer mailing list.
+  *
+  * Required parameters:
+  * --input path-to-input-directory
+  *
+  */
 object MemberOTMonth {
   def main(args: Array[String]) {
 
@@ -48,21 +48,23 @@ object MemberOTMonth {
       input,
       lineDelimiter = MBoxParser.MAIL_RECORD_DELIM,
       fieldDelimiter = MBoxParser.MAIL_FIELD_DELIM,
-      includedFields = Array(1,2)
+      includedFields = Array(1, 2)
     )
 
     val mailsPerSenderMonth = mails
-      .map { m => (
-                    // extract month from time string
-                    m._1.substring(0, 7),
-                    // extract email address from sender
-                    m._2.substring(m._2.lastIndexOf("<") + 1, m._2.length - 1) ) }
+      .map { m =>
+        (
+          // extract month from time string
+          m._1.substring(0, 7),
+          // extract email address from sender
+          m._2.substring(m._2.lastIndexOf("<") + 1, m._2.length - 1))
+      }
       // convert to table
       .toTable(tEnv, 'month, 'sender)
       // filter out bot mails
       .filter(('sender !== "jira@apache.org") &&
-              ('sender !== "git@git.apache.org") &&
-              ('sender !== "no-reply@apache.org"))
+      ('sender !== "git@git.apache.org") &&
+      ('sender !== "no-reply@apache.org"))
       // count emails per month and sender
       .groupBy('month, 'sender).select('month, 'sender, 'month.count as 'cnt)
 

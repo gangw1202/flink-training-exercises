@@ -18,8 +18,8 @@ package com.dataartisans.flinktraining.exercises.datastream_scala.broadcast
 
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.TaxiRide
 import com.dataartisans.flinktraining.exercises.datastream_java.sources.TaxiRideSource
-import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, MissingSolutionException}
 import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBase.{printOrTest, rideSourceOrTest}
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, MissingSolutionException}
 import org.apache.flink.api.common.state.{MapStateDescriptor, ValueState, ValueStateDescriptor}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.TimeCharacteristic
@@ -66,8 +66,8 @@ object NearestTaxiExercise {
     val params = ParameterTool.fromArgs(args)
     val ridesFile = params.get("input", ExerciseBase.pathToRideData)
 
-    val maxEventDelay = 60        // events are out of order by at most 60 seconds
-    val servingSpeedFactor = 600  // 10 minutes worth of events are served every second
+    val maxEventDelay = 60 // events are out of order by at most 60 seconds
+    val servingSpeedFactor = 600 // 10 minutes worth of events are served every second
 
     // set up streaming execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -119,7 +119,7 @@ object NearestTaxiExercise {
   // Note that in order to have consistent results after a restore from a checkpoint, the
   // behavior of this method must be deterministic, and NOT depend on characterisitcs of an
   // individual sub-task.
-  class QueryFunction extends KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)]{
+  class QueryFunction extends KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)] {
 
     override def processElement(ride: TaxiRide,
                                 readOnlyContext: KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)]#ReadOnlyContext,

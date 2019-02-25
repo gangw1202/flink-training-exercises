@@ -16,12 +16,13 @@
 
 package com.dataartisans.flinktraining.examples.gelly_scala
 
+import java.lang.{Double => JDouble}
+
 import org.apache.flink.api.common.functions.MapFunction
 import org.apache.flink.api.scala._
+import org.apache.flink.graph._
 import org.apache.flink.graph.examples.PageRank
 import org.apache.flink.graph.scala.utils.Tuple3ToEdgeMap
-import org.apache.flink.graph._
-import java.lang.{Double => JDouble}
 
 /**
   *
@@ -60,8 +61,10 @@ object PageRankWithEdgeWeights {
     //create a Graph with vertex values initialized to 1.0
     val network = org.apache.flink.graph.scala.Graph
       .fromDataSet(links, new MapFunction[String, JDouble]() {
-      def map(value: String): JDouble = { 1.0 }
-    }, env)
+        def map(value: String): JDouble = {
+          1.0
+        }
+      }, env)
 
     //for each vertex calculate the total weight of its outgoing edges
     val sumEdgeWeights = network.reduceOnEdges(new SumWeight(), EdgeDirection.OUT)
@@ -86,8 +89,8 @@ object PageRankWithEdgeWeights {
   }
 
   private def parseParameters(args: Array[String]): Boolean = {
-    if(args.length > 0) {
-      if(args.length != 3) {
+    if (args.length > 0) {
+      if (args.length != 3) {
         System.err.println("Usage PageRankWithEdgeWeights <edge path> <output path> <num iterations>")
         false
       }

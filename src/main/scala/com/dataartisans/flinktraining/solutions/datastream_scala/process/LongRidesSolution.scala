@@ -46,8 +46,8 @@ object LongRidesSolution {
     val params = ParameterTool.fromArgs(args)
     val input = params.get("input", pathToRideData)
 
-    val maxDelay = 60     // events are out of order by max 60 seconds
-    val speed = 1800      // events of 30 minutes are served every second
+    val maxDelay = 60 // events are out of order by max 60 seconds
+    val speed = 1800 // events of 30 minutes are served every second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
