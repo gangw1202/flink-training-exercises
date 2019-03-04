@@ -14,8 +14,8 @@
 package com.dataartisans.flinktraining.exercises.datastream_java.sources;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.zip.GZIPInputStream;
@@ -42,9 +42,9 @@ import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.TaxiRi
  *
  * StreamExecutionEnvironment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
  *
+ * @author abc
  */
 public class TaxiRideSource implements SourceFunction<TaxiRide> {
-
     private final int maxDelayMsecs;
     private final int watermarkDelayMSecs;
 
@@ -96,9 +96,8 @@ public class TaxiRideSource implements SourceFunction<TaxiRide> {
 
     @Override
     public void run(SourceContext<TaxiRide> sourceContext) throws Exception {
-
         gzipStream = new GZIPInputStream(new FileInputStream(dataFilePath));
-        reader = new BufferedReader(new InputStreamReader(gzipStream, "UTF-8"));
+        reader = new BufferedReader(new InputStreamReader(gzipStream, StandardCharsets.UTF_8));
 
         generateUnorderedStream(sourceContext);
 
@@ -106,22 +105,15 @@ public class TaxiRideSource implements SourceFunction<TaxiRide> {
         this.reader = null;
         this.gzipStream.close();
         this.gzipStream = null;
-
     }
 
     private void generateUnorderedStream(SourceContext<TaxiRide> sourceContext) throws Exception {
-
-        long servingStartTime = Calendar.getInstance().getTimeInMillis();
+        long servingStartTime = System.currentTimeMillis();
         long dataStartTime;
 
         Random rand = new Random(7452);
         PriorityQueue<Tuple2<Long, Object>> emitSchedule =
-            new PriorityQueue<>(32, new Comparator<Tuple2<Long, Object>>() {
-                @Override
-                public int compare(Tuple2<Long, Object> o1, Tuple2<Long, Object> o2) {
-                    return o1.f0.compareTo(o2.f0);
-                }
-            });
+            new PriorityQueue<>(32, (Tuple2<Long, Object> o1, Tuple2<Long, Object> o2) -> o1.f0.compareTo(o2.f0));
 
         // read first ride and insert it into emit schedule
         String line;
@@ -134,12 +126,11 @@ public class TaxiRideSource implements SourceFunction<TaxiRide> {
             // get delayed time
             long delayedEventTime = dataStartTime + getNormalDelayMsecs(rand);
 
-            emitSchedule.add(new Tuple2<Long, Object>(delayedEventTime, ride));
+            emitSchedule.add(new Tuple2<>(delayedEventTime, ride));
             // schedule next watermark
             long watermarkTime = dataStartTime + watermarkDelayMSecs;
             Watermark nextWatermark = new Watermark(watermarkTime - maxDelayMsecs - 1);
-            emitSchedule.add(new Tuple2<Long, Object>(watermarkTime, nextWatermark));
-
+            emitSchedule.add(new Tuple2<>(watermarkTime, nextWatermark));
         } else {
             return;
         }
@@ -151,17 +142,16 @@ public class TaxiRideSource implements SourceFunction<TaxiRide> {
 
         // read rides one-by-one and emit a random ride from the buffer each time
         while (emitSchedule.size() > 0 || reader.ready()) {
-
             // insert all events into schedule that might be emitted next
             long curNextDelayedEventTime = !emitSchedule.isEmpty() ? emitSchedule.peek().f0 : -1;
             long rideEventTime = ride != null ? getEventTime(ride) : -1;
-            while (ride != null && ( // while there is a ride AND
-            emitSchedule.isEmpty() || // and no ride in schedule OR
-                rideEventTime < curNextDelayedEventTime + maxDelayMsecs) // not enough rides in schedule
-            ) {
+            // while there is a ride and no ride in schedule OR
+            // not enough rides in schedule
+            while (ride != null
+                && (emitSchedule.isEmpty() || rideEventTime < curNextDelayedEventTime + maxDelayMsecs)) {
                 // insert event into emit schedule
                 long delayedEventTime = rideEventTime + getNormalDelayMsecs(rand);
-                emitSchedule.add(new Tuple2<Long, Object>(delayedEventTime, ride));
+                emitSchedule.add(new Tuple2<>(delayedEventTime, ride));
 
                 // read next ride
                 if (reader.ready() && (line = reader.readLine()) != null) {
@@ -175,6 +165,9 @@ public class TaxiRideSource implements SourceFunction<TaxiRide> {
 
             // emit schedule is updated, emit next element in schedule
             Tuple2<Long, Object> head = emitSchedule.poll();
+            if (head == null) {
+                return;
+            }
             long delayedEventTime = head.f0;
 
             long now = Calendar.getInstance().getTimeInMillis();
@@ -194,7 +187,7 @@ public class TaxiRideSource implements SourceFunction<TaxiRide> {
                 // schedule next watermark
                 long watermarkTime = delayedEventTime + watermarkDelayMSecs;
                 Watermark nextWatermark = new Watermark(watermarkTime - maxDelayMsecs - 1);
-                emitSchedule.add(new Tuple2<Long, Object>(watermarkTime, nextWatermark));
+                emitSchedule.add(new Tuple2<>(watermarkTime, nextWatermark));
             }
         }
     }

@@ -19,6 +19,9 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.TaxiFare;
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.TaxiRide;
 
+/**
+ * @author abc
+ */
 public class ExerciseBase {
     public static SourceFunction<TaxiRide> rides = null;
     public static SourceFunction<TaxiFare> fares = null;
@@ -26,8 +29,8 @@ public class ExerciseBase {
     public static SinkFunction out = null;
     public static int parallelism = 4;
 
-    public final static String pathToRideData = "/Users/david/stuff/flink-training/trainingData/nycTaxiRides.gz";
-    public final static String pathToFareData = "/Users/david/stuff/flink-training/trainingData/nycTaxiFares.gz";
+    public final static String PATH_TO_RIDE_DATA = "/Users/wg/Desktop/bigdata/data/nycTaxiRides.gz";
+    public final static String PATH_TO_FARE_DATA = "/Users/wg/Desktop/bigdata/data/nycTaxiFares.gz";
 
     public static SourceFunction<TaxiRide> rideSourceOrTest(SourceFunction<TaxiRide> source) {
         if (rides == null) {

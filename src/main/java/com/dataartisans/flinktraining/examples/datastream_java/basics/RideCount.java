@@ -13,7 +13,7 @@
 
 package com.dataartisans.flinktraining.examples.datastream_java.basics;
 
-import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -37,27 +37,24 @@ import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBa
  */
 public class RideCount {
     public static void main(String[] args) throws Exception {
-
         ParameterTool params = ParameterTool.fromArgs(args);
-        final String input = params.get("input", ExerciseBase.pathToRideData);
+        final String input = params.get("input", ExerciseBase.PATH_TO_RIDE_DATA);
 
-        final int maxEventDelay = 60; // events are out of order by max 60 seconds
-        final int servingSpeedFactor = 600; // events of 10 minutes are served every second
+        // events are out of order by max 60 seconds
+        final int maxEventDelay = 60;
+        // events of 10 minutes are served every second
+        final int servingSpeedFactor = 600;
 
         // set up streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         // start the data generator
-        DataStream<TaxiRide> rides = env.addSource(new TaxiRideSource(input, maxEventDelay, servingSpeedFactor));
+        DataStream<TaxiRide> sourceStream = env.addSource(new TaxiRideSource(input, maxEventDelay, servingSpeedFactor));
 
         // map each ride to a tuple of (driverId, 1)
-        DataStream<Tuple2<Long, Long>> tuples = rides.map(new MapFunction<TaxiRide, Tuple2<Long, Long>>() {
-            @Override
-            public Tuple2<Long, Long> map(TaxiRide ride) throws Exception {
-                return new Tuple2<Long, Long>(ride.driverId, 1L);
-            }
-        });
+        DataStream<Tuple2<Long, Long>> tuples = sourceStream.map((TaxiRide ride) -> Tuple2.of(ride.driverId, 1L))
+            .returns(Types.TUPLE(Types.LONG, Types.LONG));
 
         // partition the stream by the driverId
         KeyedStream<Tuple2<Long, Long>, Tuple> keyedByDriverId = tuples.keyBy(0);

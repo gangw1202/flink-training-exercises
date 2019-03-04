@@ -43,7 +43,6 @@ import com.dataartisans.flinktraining.exercises.datastream_java.utils.ConnectedC
  * Parameters: -input path-to-input-file
  */
 public class DrivingSegments {
-
     public static void main(String[] args) throws Exception {
 
         // read parameters

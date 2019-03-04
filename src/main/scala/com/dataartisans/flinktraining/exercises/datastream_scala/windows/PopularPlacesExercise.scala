@@ -42,7 +42,7 @@ object PopularPlacesExercise {
 
     // read parameters
     val params = ParameterTool.fromArgs(args)
-    val input = params.get("input", ExerciseBase.pathToRideData)
+    val input = params.get("input", ExerciseBase.PATH_TO_RIDE_DATA)
     val popThreshold = params.getInt("threshold", 20)
 
     val maxDelay = 60 // events are out of order by max 60 seconds

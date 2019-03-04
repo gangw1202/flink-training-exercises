@@ -31,9 +31,9 @@ import com.dataartisans.flinktraining.exercises.datastream_java.utils.GeoUtils;
  * the longitude of the end location - the latitude of the end location - the passengerCnt of the ride - the taxiId -
  * the driverId
  *
+ * @author abc
  */
 public class TaxiRide implements Comparable<TaxiRide>, Serializable {
-
     private static transient DateTimeFormatter timeFormatter =
         DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withLocale(Locale.US).withZoneUTC();
 
@@ -44,7 +44,6 @@ public class TaxiRide implements Comparable<TaxiRide>, Serializable {
 
     public TaxiRide(long rideId, boolean isStart, DateTime startTime, DateTime endTime, float startLon, float startLat,
         float endLon, float endLat, short passengerCnt, long taxiId, long driverId) {
-
         this.rideId = rideId;
         this.isStart = isStart;
         this.startTime = startTime;
@@ -70,6 +69,7 @@ public class TaxiRide implements Comparable<TaxiRide>, Serializable {
     public long taxiId;
     public long driverId;
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(rideId).append(",");
@@ -88,14 +88,12 @@ public class TaxiRide implements Comparable<TaxiRide>, Serializable {
     }
 
     public static TaxiRide fromString(String line) {
-
         String[] tokens = line.split(",");
         if (tokens.length != 11) {
             throw new RuntimeException("Invalid record: " + line);
         }
 
         TaxiRide ride = new TaxiRide();
-
         try {
             ride.rideId = Long.parseLong(tokens[0]);
 
@@ -129,8 +127,10 @@ public class TaxiRide implements Comparable<TaxiRide>, Serializable {
         return ride;
     }
 
-    // sort by timestamp,
-    // putting START events before END events if they have the same timestamp
+    /**
+     * sort by timestamp, putting START events before END events if they have the same timestamp
+     */
+    @Override
     public int compareTo(TaxiRide other) {
         if (other == null) {
             return 1;

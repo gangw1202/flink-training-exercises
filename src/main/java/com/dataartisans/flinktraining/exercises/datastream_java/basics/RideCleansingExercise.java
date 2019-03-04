@@ -22,7 +22,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.TaxiRide;
 import com.dataartisans.flinktraining.exercises.datastream_java.sources.TaxiRideSource;
 import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBase;
-import com.dataartisans.flinktraining.exercises.datastream_java.utils.MissingSolutionException;
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.GeoUtils;
 
 /**
  * The "Ride Cleansing" exercise from the Flink training (http://training.data-artisans.com). The task of the exercise
@@ -36,7 +36,7 @@ public class RideCleansingExercise extends ExerciseBase {
     public static void main(String[] args) throws Exception {
 
         ParameterTool params = ParameterTool.fromArgs(args);
-        final String input = params.get("input", ExerciseBase.pathToRideData);
+        final String input = params.get("input", ExerciseBase.PATH_TO_RIDE_DATA);
 
         final int maxEventDelay = 60; // events are out of order by max 60 seconds
         final int servingSpeedFactor = 600; // events of 10 minutes are served in 1 second
@@ -62,10 +62,10 @@ public class RideCleansingExercise extends ExerciseBase {
     }
 
     private static class NYCFilter implements FilterFunction<TaxiRide> {
-
         @Override
         public boolean filter(TaxiRide taxiRide) throws Exception {
-            throw new MissingSolutionException();
+            return GeoUtils.isInNYC(taxiRide.startLon, taxiRide.startLat)
+                && GeoUtils.isInNYC(taxiRide.endLon, taxiRide.endLat);
         }
     }
 

@@ -43,8 +43,8 @@ public class RidesAndFaresSolution extends ExerciseBase {
     public static void main(String[] args) throws Exception {
 
         ParameterTool params = ParameterTool.fromArgs(args);
-        final String ridesFile = params.get("rides", pathToRideData);
-        final String faresFile = params.get("fares", pathToFareData);
+        final String ridesFile = params.get("rides", PATH_TO_RIDE_DATA);
+        final String faresFile = params.get("fares", PATH_TO_FARE_DATA);
 
         final int delay = 60; // at most 60 seconds of delay
         final int servingSpeedFactor = 1800; // 30 minutes worth of events are served every second

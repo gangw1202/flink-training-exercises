@@ -64,7 +64,7 @@ object NearestTaxiExercise {
   def main(args: Array[String]): Unit = {
     // parse parameters
     val params = ParameterTool.fromArgs(args)
-    val ridesFile = params.get("input", ExerciseBase.pathToRideData)
+    val ridesFile = params.get("input", ExerciseBase.PATH_TO_RIDE_DATA)
 
     val maxEventDelay = 60 // events are out of order by at most 60 seconds
     val servingSpeedFactor = 600 // 10 minutes worth of events are served every second

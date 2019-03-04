@@ -44,7 +44,7 @@ import scala.collection.Map
 object LongRidesSolution {
   def main(args: Array[String]) {
     val params = ParameterTool.fromArgs(args)
-    val input = params.get("input", pathToRideData)
+    val input = params.get("input", PATH_TO_RIDE_DATA)
 
     val speed = 600 // events of 10 minutes are served in 1 second
 

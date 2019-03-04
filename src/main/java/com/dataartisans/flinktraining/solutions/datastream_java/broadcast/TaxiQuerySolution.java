@@ -73,7 +73,7 @@ public class TaxiQuerySolution extends ExerciseBase {
     public static void main(String[] args) throws Exception {
 
         ParameterTool params = ParameterTool.fromArgs(args);
-        final String input = params.get("input", ExerciseBase.pathToRideData);
+        final String input = params.get("input", ExerciseBase.PATH_TO_RIDE_DATA);
 
         final int maxEventDelay = 60; // events are out of order by at most 60 seconds
         final int servingSpeedFactor = 1800; // 30 minutes worth of events are served every second

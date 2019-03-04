@@ -46,8 +46,8 @@ public class ExpiringStateExercise extends ExerciseBase {
     public static void main(String[] args) throws Exception {
 
         ParameterTool params = ParameterTool.fromArgs(args);
-        final String ridesFile = params.get("rides", ExerciseBase.pathToRideData);
-        final String faresFile = params.get("fares", ExerciseBase.pathToFareData);
+        final String ridesFile = params.get("rides", ExerciseBase.PATH_TO_RIDE_DATA);
+        final String faresFile = params.get("fares", ExerciseBase.PATH_TO_FARE_DATA);
 
         final int servingSpeedFactor = 600; // 10 minutes worth of events are served every second
 

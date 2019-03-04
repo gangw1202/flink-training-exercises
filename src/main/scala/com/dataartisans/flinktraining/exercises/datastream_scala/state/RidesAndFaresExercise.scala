@@ -42,8 +42,8 @@ object RidesAndFaresExercise {
 
     // parse parameters
     val params = ParameterTool.fromArgs(args)
-    val ridesFile = params.get("rides", ExerciseBase.pathToRideData)
-    val faresFile = params.get("fares", ExerciseBase.pathToFareData)
+    val ridesFile = params.get("rides", ExerciseBase.PATH_TO_RIDE_DATA)
+    val faresFile = params.get("fares", ExerciseBase.PATH_TO_FARE_DATA)
 
     val delay = 60; // at most 60 seconds of delay
     val servingSpeedFactor = 1800 // 30 minutes worth of events are served every second
