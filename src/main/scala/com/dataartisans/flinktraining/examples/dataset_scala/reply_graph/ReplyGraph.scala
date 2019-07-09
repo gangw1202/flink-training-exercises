@@ -43,25 +43,32 @@ object ReplyGraph {
       input,
       lineDelimiter = MBoxParser.MAIL_RECORD_DELIM,
       fieldDelimiter = MBoxParser.MAIL_FIELD_DELIM,
-      includedFields = Array(0,2,5)
+      includedFields = Array(0, 2, 5)
     )
 
     // extract email addresses and filter out mails sent from bots
     val addressMails = mails
       // extract email addresses
-      .map { m => ( m._1,
-                    m._2.substring(m._2.lastIndexOf("<") + 1, m._2.length - 1),
-                    m._3 ) }
+      .map { m =>
+      (m._1, m._2.substring(m._2.lastIndexOf("<") + 1, m._2.length - 1), m._3)
+    }
       // filter out mails
-      .filter { m => !(m._2.equals("git@git.apache.org") || m._2.equals("jira@apache.org")) }
+      .filter { m =>
+      !(m._2.equals("git@git.apache.org") || m._2.equals("jira@apache.org"))
+    }
 
     // compute reply connections by joining on messageId and reply-to
     val replyConnections = addressMails
-      .join(addressMails).where(2).equalTo(0) { (l,r) => (l._2, r._2) }
+      .join(addressMails)
+      .where(2)
+      .equalTo(0) { (l, r) =>
+        (l._2, r._2)
+      }
 
     // count connections for each pair of addresses
     replyConnections
-      .groupBy(0,1).reduceGroup( cs => cs.foldLeft(("","",0))( (l,r) => (r._1, r._2, l._3+1) ) )
+      .groupBy(0, 1)
+      .reduceGroup(cs => cs.foldLeft(("", "", 0))((l, r) => (r._1, r._2, l._3 + 1)))
       .print
 
   }

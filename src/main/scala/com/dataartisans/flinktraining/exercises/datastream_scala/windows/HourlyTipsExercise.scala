@@ -17,8 +17,8 @@
 package com.dataartisans.flinktraining.exercises.datastream_scala.windows
 
 import com.dataartisans.flinktraining.exercises.datastream_java.sources.TaxiFareSource
-import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, MissingSolutionException}
 import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBase._
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, MissingSolutionException}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala._
@@ -43,7 +43,7 @@ object HourlyTipsExercise {
     val input = params.get("input", ExerciseBase.pathToFareData)
 
     val maxDelay = 60 // events are delayed by at most 60 seconds
-    val speed = 600   // events of 10 minutes are served in 1 second
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up streaming execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -55,7 +55,7 @@ object HourlyTipsExercise {
 
     throw new MissingSolutionException()
 
-   // print result on stdout
+    // print result on stdout
 //    printOrTest(hourlyMax)
 
     // execute the transformation pipeline

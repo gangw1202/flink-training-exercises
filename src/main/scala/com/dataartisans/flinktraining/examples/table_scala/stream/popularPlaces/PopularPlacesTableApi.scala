@@ -15,15 +15,15 @@
  */
 package com.dataartisans.flinktraining.examples.table_scala.stream.popularPlaces
 
-import com.dataartisans.flinktraining.exercises.datastream_java.utils.GeoUtils.{IsInNYC, ToCellId, ToCoords}
 import com.dataartisans.flinktraining.examples.table_java.sources.TaxiRideTableSource
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.GeoUtils.{IsInNYC, ToCellId, ToCoords}
 import org.apache.flink.api.java.utils.ParameterTool
+import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.table.api.TableEnvironment
-import org.apache.flink.types.Row
-import org.apache.flink.api.scala._
 import org.apache.flink.table.api.scala._
+import org.apache.flink.types.Row
 
 object PopularPlacesTableApi {
 
@@ -33,7 +33,7 @@ object PopularPlacesTableApi {
     val params = ParameterTool.fromArgs(args)
     val input = params.getRequired("input")
 
-    val maxEventDelay = 60       // events are out of order by max 60 seconds
+    val maxEventDelay = 60 // events are out of order by max 60 seconds
     val servingSpeedFactor = 600 // events of 10 minutes are served in 1 second
 
     // set up streaming execution environment
@@ -46,7 +46,8 @@ object PopularPlacesTableApi {
     // register TaxiRideTableSource as table "TaxiRides"
     tEnv.registerTableSource(
       "TaxiRides",
-      new TaxiRideTableSource(input, maxEventDelay, servingSpeedFactor))
+      new TaxiRideTableSource(input, maxEventDelay, servingSpeedFactor)
+    )
 
     // create user-defined functions
     val isInNYC = new IsInNYC
@@ -62,7 +63,8 @@ object PopularPlacesTableApi {
       .select(
         'eventTime,
         'isStart,
-        'isStart.?(toCellId('startLon, 'startLat), toCellId('endLon, 'endLat)) as 'cell)
+      'isStart.?(toCellId('startLon, 'startLat), toCellId('endLon, 'endLat)) as 'cell
+    )
       // specify sliding window of 15 minutes with slide of 5 minutes
       .window(Slide over 15.minutes every 5.minutes on 'eventTime as 'w)
       // group by cell, isStart, and window

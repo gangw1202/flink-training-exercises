@@ -16,12 +16,13 @@
 
 package com.dataartisans.flinktraining.examples.gelly_scala
 
+import java.lang.{Double => JDouble}
+
 import org.apache.flink.api.common.functions.MapFunction
 import org.apache.flink.api.scala._
+import org.apache.flink.graph._
 import org.apache.flink.graph.examples.PageRank
 import org.apache.flink.graph.scala.utils.Tuple3ToEdgeMap
-import org.apache.flink.graph._
-import java.lang.{Double => JDouble}
 
 /**
   *
@@ -35,7 +36,6 @@ import java.lang.{Double => JDouble}
   * dampening factor and number of iterations.
   *
   */
-
 object PageRankWithEdgeWeights {
 
   private val DAMPENING_FACTOR: Double = 0.85
@@ -54,22 +54,29 @@ object PageRankWithEdgeWeights {
     val env = ExecutionEnvironment.getExecutionEnvironment
 
     //read the Edge DataSet from the input file
-    val links = env.readCsvFile[(String, String, JDouble)](edgesInputPath,
-      fieldDelimiter = "\t", lineDelimiter = "\n").map(new Tuple3ToEdgeMap[String, JDouble]())
+    val links = env
+      .readCsvFile[(String, String, JDouble)](
+      edgesInputPath,
+      fieldDelimiter = "\t",
+      lineDelimiter = "\n"
+    )
+      .map(new Tuple3ToEdgeMap[String, JDouble]())
 
     //create a Graph with vertex values initialized to 1.0
     val network = org.apache.flink.graph.scala.Graph
       .fromDataSet(links, new MapFunction[String, JDouble]() {
-      def map(value: String): JDouble = { 1.0 }
-    }, env)
+        def map(value: String): JDouble = {
+          1.0
+        }
+      }, env)
 
     //for each vertex calculate the total weight of its outgoing edges
     val sumEdgeWeights = network.reduceOnEdges(new SumWeight(), EdgeDirection.OUT)
 
     // assign the transition probabilities as edge weights:
     // divide edge weight by the total weight of outgoing edges for that source
-    val networkWithWeights = network.joinWithEdgesOnSource(sumEdgeWeights,
-      new EdgeJoinFunction[JDouble, JDouble]() {
+    val networkWithWeights =
+    network.joinWithEdgesOnSource(sumEdgeWeights, new EdgeJoinFunction[JDouble, JDouble]() {
         def edgeJoin(d1: JDouble, d2: JDouble) = {
           d1 / d2
         }
@@ -86,9 +93,11 @@ object PageRankWithEdgeWeights {
   }
 
   private def parseParameters(args: Array[String]): Boolean = {
-    if(args.length > 0) {
-      if(args.length != 3) {
-        System.err.println("Usage PageRankWithEdgeWeights <edge path> <output path> <num iterations>")
+    if (args.length > 0) {
+      if (args.length != 3) {
+        System.err.println(
+          "Usage PageRankWithEdgeWeights <edge path> <output path> <num iterations>"
+        )
         false
       }
       edgesInputPath = args(0)
@@ -101,6 +110,6 @@ object PageRankWithEdgeWeights {
 
 //function to calculate the total weight of outgoing edges from a node
 class SumWeight extends ReduceEdgesFunction[JDouble] {
-  override def reduceEdges(firstEdgeValue: JDouble, secondEdgeValue: JDouble): JDouble = firstEdgeValue
+  override def reduceEdges(firstEdgeValue: JDouble, secondEdgeValue: JDouble): JDouble =
+    firstEdgeValue
 }
-

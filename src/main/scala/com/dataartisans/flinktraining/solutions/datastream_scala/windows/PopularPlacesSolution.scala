@@ -47,8 +47,8 @@ object PopularPlacesSolution {
     val input = params.get("input", pathToRideData)
     val popThreshold = params.getInt("threshold", 20)
 
-    val maxDelay = 60     // events are out of order by max 60 seconds
-    val speed = 600       // events of 10 minutes are served in 1 second
+    val maxDelay = 60 // events are out of order by max 60 seconds
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up streaming execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -61,19 +61,23 @@ object PopularPlacesSolution {
     // find n most popular spots
     val popularPlaces = rides
       // remove all rides which are not within NYC
-      .filter { r => GeoUtils.isInNYC(r.startLon, r.startLat) && GeoUtils.isInNYC(r.endLon, r.endLat) }
+      .filter { r =>
+      GeoUtils.isInNYC(r.startLon, r.startLat) && GeoUtils.isInNYC(r.endLon, r.endLat)
+    }
       // match ride to grid cell and event type (start or end)
       .map(new GridCellMatcher)
       // partition by cell id and event type
-      .keyBy( k => k )
+      .keyBy(k => k)
       // build sliding window
       .timeWindow(Time.minutes(15), Time.minutes(5))
       // count events in window
-      .apply{ (key: (Int, Boolean), window, vals, out: Collector[(Int, Long, Boolean, Int)]) =>
-        out.collect( (key._1, window.getEnd, key._2, vals.size) )
+      .apply { (key: (Int, Boolean), window, vals, out: Collector[(Int, Long, Boolean, Int)]) =>
+      out.collect((key._1, window.getEnd, key._2, vals.size))
       }
       // filter by popularity threshold
-      .filter( c => { c._4 >= popThreshold } )
+      .filter(c => {
+      c._4 >= popThreshold
+    })
       // map grid cell to coordinates
       .map(new GridToCoordinates)
 
@@ -106,9 +110,8 @@ object PopularPlacesSolution {
   /**
    * Maps the grid cell id back to longitude and latitude coordinates.
    */
-  class GridToCoordinates extends MapFunction[
-    (Int, Long, Boolean, Int),
-    (Float, Float, Long, Boolean, Int)] {
+  class GridToCoordinates
+    extends MapFunction[(Int, Long, Boolean, Int), (Float, Float, Long, Boolean, Int)] {
 
     def map(cellCount: (Int, Long, Boolean, Int)): (Float, Float, Long, Boolean, Int) = {
       val longitude = GeoUtils.getGridCellCenterLon(cellCount._1)
@@ -118,4 +121,3 @@ object PopularPlacesSolution {
   }
 
 }
-

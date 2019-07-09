@@ -18,14 +18,12 @@ package com.dataartisans.flinktraining.exercises.datastream_scala.process
 
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.{TaxiFare, TaxiRide}
 import com.dataartisans.flinktraining.exercises.datastream_java.sources.{CheckpointedTaxiFareSource, CheckpointedTaxiRideSource}
-import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, MissingSolutionException}
 import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBase._
-import org.apache.flink.api.common.state.{ValueState, ValueStateDescriptor}
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, MissingSolutionException}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.TimeCharacteristic
-import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.functions.co.CoProcessFunction
+import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
 import org.apache.flink.util.Collector
 
 /**
@@ -59,7 +57,9 @@ object ExpiringStateExercise {
 
     val rides = env
       .addSource(rideSourceOrTest(new CheckpointedTaxiRideSource(ridesFile, servingSpeedFactor)))
-      .filter { ride => ride.isStart && (ride.rideId % 1000 != 0) }
+      .filter { ride =>
+        ride.isStart && (ride.rideId % 1000 != 0)
+      }
       .keyBy("rideId")
 
     val fares = env
@@ -75,22 +75,26 @@ object ExpiringStateExercise {
 
   class EnrichmentFunction extends CoProcessFunction[TaxiRide, TaxiFare, (TaxiRide, TaxiFare)] {
 
-    override def processElement1(ride: TaxiRide,
-                                 context: CoProcessFunction[TaxiRide, TaxiFare, (TaxiRide, TaxiFare)]#Context,
-                                 out: Collector[(TaxiRide, TaxiFare)]): Unit = {
+    override def processElement1(
+                                  ride: TaxiRide,
+                                  context: CoProcessFunction[TaxiRide, TaxiFare, (TaxiRide, TaxiFare)]#Context,
+                                  out: Collector[(TaxiRide, TaxiFare)]
+                                ): Unit = {
 
       throw new MissingSolutionException()
     }
 
-    override def processElement2(fare: TaxiFare,
-                                 context: CoProcessFunction[TaxiRide, TaxiFare, (TaxiRide, TaxiFare)]#Context,
-                                 out: Collector[(TaxiRide, TaxiFare)]): Unit = {
-    }
+    override def processElement2(
+                                  fare: TaxiFare,
+                                  context: CoProcessFunction[TaxiRide, TaxiFare, (TaxiRide, TaxiFare)]#Context,
+                                  out: Collector[(TaxiRide, TaxiFare)]
+                                ): Unit = {}
 
-    override def onTimer(timestamp: Long,
-                         ctx: CoProcessFunction[TaxiRide, TaxiFare, (TaxiRide, TaxiFare)]#OnTimerContext,
-                         out: Collector[(TaxiRide, TaxiFare)]): Unit = {
-    }
+    override def onTimer(
+                          timestamp: Long,
+                          ctx: CoProcessFunction[TaxiRide, TaxiFare, (TaxiRide, TaxiFare)]#OnTimerContext,
+                          out: Collector[(TaxiRide, TaxiFare)]
+                        ): Unit = {}
   }
 
 }

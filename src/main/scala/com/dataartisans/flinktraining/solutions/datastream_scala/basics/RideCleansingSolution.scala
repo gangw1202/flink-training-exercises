@@ -43,7 +43,7 @@ object RideCleansingSolution {
     val input = params.get("input", pathToRideData)
 
     val maxDelay = 60 // events are out of order by max 60 seconds
-    val speed = 600   // events of 10 minutes are served in 1 second
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment

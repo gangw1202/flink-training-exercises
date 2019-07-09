@@ -48,29 +48,38 @@ object MemberOTMonth {
       input,
       lineDelimiter = MBoxParser.MAIL_RECORD_DELIM,
       fieldDelimiter = MBoxParser.MAIL_FIELD_DELIM,
-      includedFields = Array(1,2)
+      includedFields = Array(1, 2)
     )
 
     val mailsPerSenderMonth = mails
-      .map { m => (
-                    // extract month from time string
-                    m._1.substring(0, 7),
-                    // extract email address from sender
-                    m._2.substring(m._2.lastIndexOf("<") + 1, m._2.length - 1) ) }
+      .map { m =>
+        (
+          // extract month from time string
+          m._1.substring(0, 7),
+          // extract email address from sender
+          m._2.substring(m._2.lastIndexOf("<") + 1, m._2.length - 1)
+        )
+      }
       // convert to table
       .toTable(tEnv, 'month, 'sender)
       // filter out bot mails
-      .filter(('sender !== "jira@apache.org") &&
-              ('sender !== "git@git.apache.org") &&
-              ('sender !== "no-reply@apache.org"))
+      .filter(
+      ('sender !== "jira@apache.org") &&
+        ('sender !== "git@git.apache.org") &&
+        ('sender !== "no-reply@apache.org")
+    )
       // count emails per month and sender
-      .groupBy('month, 'sender).select('month, 'sender, 'month.count as 'cnt)
+      .groupBy('month, 'sender)
+      .select('month, 'sender, 'month.count as 'cnt)
 
     val membersOTMonth = mailsPerSenderMonth
       // find max number of mails send in each month
-      .groupBy('month).select('month as 'm, 'cnt.max as 'max)
+      .groupBy('month)
+      .select('month as 'm, 'cnt.max as 'max)
       // find email address that sent the most emails per month
-      .join(mailsPerSenderMonth).where('m === 'month && 'max === 'cnt).select('month, 'sender)
+      .join(mailsPerSenderMonth)
+      .where('m === 'month && 'max === 'cnt)
+      .select('month, 'sender)
 
     // print out result
     membersOTMonth.toDataSet[Row].print()

@@ -46,8 +46,8 @@ object LongRidesSolution {
     val params = ParameterTool.fromArgs(args)
     val input = params.get("input", pathToRideData)
 
-    val maxDelay = 60     // events are out of order by max 60 seconds
-    val speed = 1800      // events of 30 minutes are served every second
+    val maxDelay = 60 // events are out of order by max 60 seconds
+    val speed = 1800 // events of 30 minutes are served every second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -70,11 +70,14 @@ object LongRidesSolution {
     // keyed, managed state
     // holds an END event if the ride has ended, otherwise a START event
     lazy val rideState: ValueState[TaxiRide] = getRuntimeContext.getState(
-      new ValueStateDescriptor[TaxiRide]("saved ride", classOf[TaxiRide]))
+      new ValueStateDescriptor[TaxiRide]("saved ride", classOf[TaxiRide])
+    )
 
-    override def processElement(ride: TaxiRide,
-                                context: KeyedProcessFunction[Long, TaxiRide, TaxiRide]#Context,
-                                out: Collector[TaxiRide]): Unit = {
+    override def processElement(
+                                 ride: TaxiRide,
+                                 context: KeyedProcessFunction[Long, TaxiRide, TaxiRide]#Context,
+                                 out: Collector[TaxiRide]
+                               ): Unit = {
       val timerService = context.timerService
 
       if (ride.isStart) {
@@ -82,17 +85,18 @@ object LongRidesSolution {
         if (rideState.value() == null) {
           rideState.update(ride)
         }
-      }
-      else {
+      } else {
         rideState.update(ride)
       }
 
       timerService.registerEventTimeTimer(ride.getEventTime + 120 * 60 * 1000)
     }
 
-    override def onTimer(timestamp: Long,
-                         ctx: KeyedProcessFunction[Long, TaxiRide, TaxiRide]#OnTimerContext,
-                         out: Collector[TaxiRide]): Unit = {
+    override def onTimer(
+                          timestamp: Long,
+                          ctx: KeyedProcessFunction[Long, TaxiRide, TaxiRide]#OnTimerContext,
+                          out: Collector[TaxiRide]
+                        ): Unit = {
       val savedRide = rideState.value
 
       if (savedRide != null && savedRide.isStart) {

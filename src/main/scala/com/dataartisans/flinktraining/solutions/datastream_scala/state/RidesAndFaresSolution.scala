@@ -46,7 +46,7 @@ object RidesAndFaresSolution {
     val ridesFile = params.get("rides", ExerciseBase.pathToRideData)
     val faresFile = params.get("fares", ExerciseBase.pathToFareData)
 
-    val delay = 60;               // at most 60 seconds of delay
+    val delay = 60; // at most 60 seconds of delay
     val servingSpeedFactor = 1800 // 30 minutes worth of events are served every second
 
     // set up streaming execution environment
@@ -56,7 +56,9 @@ object RidesAndFaresSolution {
 
     val rides = env
       .addSource(rideSourceOrTest(new TaxiRideSource(ridesFile, delay, servingSpeedFactor)))
-      .filter { ride => ride.isStart }
+      .filter { ride =>
+        ride.isStart
+      }
       .keyBy("rideId")
 
     val fares = env
@@ -75,17 +77,18 @@ object RidesAndFaresSolution {
   class EnrichmentFunction extends RichCoFlatMapFunction[TaxiRide, TaxiFare, (TaxiRide, TaxiFare)] {
     // keyed, managed state
     lazy val rideState: ValueState[TaxiRide] = getRuntimeContext.getState(
-      new ValueStateDescriptor[TaxiRide]("saved ride", classOf[TaxiRide]))
+      new ValueStateDescriptor[TaxiRide]("saved ride", classOf[TaxiRide])
+    )
     lazy val fareState: ValueState[TaxiFare] = getRuntimeContext.getState(
-      new ValueStateDescriptor[TaxiFare]("saved fare", classOf[TaxiFare]))
+      new ValueStateDescriptor[TaxiFare]("saved fare", classOf[TaxiFare])
+    )
 
     override def flatMap1(ride: TaxiRide, out: Collector[(TaxiRide, TaxiFare)]): Unit = {
       val fare = fareState.value
       if (fare != null) {
         fareState.clear()
         out.collect((ride, fare))
-      }
-      else {
+      } else {
         rideState.update(ride)
       }
     }
@@ -95,8 +98,7 @@ object RidesAndFaresSolution {
       if (ride != null) {
         rideState.clear()
         out.collect((ride, fare))
-      }
-      else {
+      } else {
         fareState.update(fare)
       }
     }

@@ -52,7 +52,7 @@ object TravelTimePrediction {
     val params = ParameterTool.fromArgs(args)
     val input = params.getRequired("input")
 
-    val speed = 600   // events of 10 minutes are served in 1 second
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -94,7 +94,8 @@ object TravelTimePrediction {
     override def flatMap(in: (Int, TaxiRide), out: Collector[(Long, Int)]): Unit = {
 
       // fetch operator state
-      val model: TravelTimePredictionModel = Option(modelState.value).getOrElse(new TravelTimePredictionModel)
+      val model: TravelTimePredictionModel =
+        Option(modelState.value).getOrElse(new TravelTimePredictionModel)
       val ride: TaxiRide = in._2
 
       // compute distance and direction
@@ -107,9 +108,8 @@ object TravelTimePrediction {
         // we have a start event: Predict travel time
         val predictedTime: Int = model.predictTravelTime(direction, distance)
         // emit prediction
-        out.collect( (ride.rideId, predictedTime) )
-      }
-      else {
+        out.collect((ride.rideId, predictedTime))
+      } else {
         // we have an end event: Update model
         // compute travel time in minutes
         val travelTime = (ride.endTime.getMillis - ride.startTime.getMillis) / 60000.0
@@ -126,7 +126,8 @@ object TravelTimePrediction {
         // state name
         "regressionModel",
         // type info for state object
-        TypeInformation.of(classOf[TravelTimePredictionModel]))
+        TypeInformation.of(classOf[TravelTimePredictionModel])
+      )
 
       modelState = getRuntimeContext.getState(descriptor)
     }

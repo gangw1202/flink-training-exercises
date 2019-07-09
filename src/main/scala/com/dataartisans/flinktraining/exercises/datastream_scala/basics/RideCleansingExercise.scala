@@ -18,7 +18,7 @@ package com.dataartisans.flinktraining.exercises.datastream_scala.basics
 
 import com.dataartisans.flinktraining.exercises.datastream_java.sources.TaxiRideSource
 import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBase._
-import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, GeoUtils, MissingSolutionException}
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.{ExerciseBase, MissingSolutionException}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala._
@@ -42,7 +42,7 @@ object RideCleansingExercise extends ExerciseBase {
     val input = params.get("input", ExerciseBase.pathToRideData)
 
     val maxDelay = 60 // events are out of order by max 60 seconds
-    val speed = 600   // events of 10 minutes are served in 1 second
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment

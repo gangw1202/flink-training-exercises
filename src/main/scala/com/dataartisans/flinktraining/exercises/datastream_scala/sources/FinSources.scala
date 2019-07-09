@@ -16,52 +16,50 @@
 
 package com.dataartisans.flinktraining.exercises.datastream_scala.sources
 
-import org.apache.flink.api.scala._
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.{Customer, Trade}
+import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.streaming.api.watermark.Watermark
 
 object FinSources {
+
   /**
     * This source generates a stream of customer events
     *
     * @param env
     * @return
     */
-
   def customerSource(env: StreamExecutionEnvironment): DataStream[Customer] = {
     // This is a bit of a hack to use Thread.sleep() for sequencing but it works for our test purposes
-     env.addSource((sc: SourceContext[Customer]) => {
-       sc.collectWithTimestamp(new Customer(0L, 0L, "Customer data @ 0"), 0)
-       sc.emitWatermark(new Watermark(0))
-       Thread.sleep(2000)
-       sc.collectWithTimestamp(new Customer(500L, 0L, "Customer data @ 500"), 500)
-       sc.emitWatermark(new Watermark(500))
-       Thread.sleep(1000)
-       sc.collectWithTimestamp(new Customer(1500L, 0L, "Customer data @ 1500"), 1500)
-       sc.emitWatermark(new Watermark(1500))
-       Thread.sleep(6000)
-       sc.collectWithTimestamp(new Customer(1600L, 0L, "Customer data @ 1600"), 1600)
-       sc.emitWatermark(new Watermark(1600))
-       Thread.sleep(1000)
-       sc.collectWithTimestamp(new Customer(2100L, 0L, "Customer data @ 2100"), 2100)
-       sc.emitWatermark(new Watermark(2100))
+    env.addSource((sc: SourceContext[Customer]) => {
+      sc.collectWithTimestamp(new Customer(0L, 0L, "Customer data @ 0"), 0)
+      sc.emitWatermark(new Watermark(0))
+      Thread.sleep(2000)
+      sc.collectWithTimestamp(new Customer(500L, 0L, "Customer data @ 500"), 500)
+      sc.emitWatermark(new Watermark(500))
+      Thread.sleep(1000)
+      sc.collectWithTimestamp(new Customer(1500L, 0L, "Customer data @ 1500"), 1500)
+      sc.emitWatermark(new Watermark(1500))
+      Thread.sleep(6000)
+      sc.collectWithTimestamp(new Customer(1600L, 0L, "Customer data @ 1600"), 1600)
+      sc.emitWatermark(new Watermark(1600))
+      Thread.sleep(1000)
+      sc.collectWithTimestamp(new Customer(2100L, 0L, "Customer data @ 2100"), 2100)
+      sc.emitWatermark(new Watermark(2100))
 
-       while (true) {
-         Thread.sleep(1000)
-       }
-     })
+      while (true) {
+        Thread.sleep(1000)
+      }
+    })
   }
 
   /**
     * This source generates the stream of trades
     *
-    *
     * @param env
     * @return
     */
-
   def tradeSource(env: StreamExecutionEnvironment): DataStream[Trade] = {
     env.addSource((sc: SourceContext[Trade]) => {
       Thread.sleep(1000)

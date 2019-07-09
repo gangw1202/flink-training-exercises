@@ -32,7 +32,6 @@ import org.apache.flink.streaming.api.functions.KeyedProcessFunction
 import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
 import org.apache.flink.util.Collector
 
-
 /**
   * Scala reference implementation for the "Long Ride Alerts" exercise of the Flink training
   * (http://training.ververica.com).
@@ -52,7 +51,7 @@ object CheckpointedLongRidesSolution {
     // parse parameters
     val params = ParameterTool.fromArgs(args)
     val input = params.get("input", ExerciseBase.pathToRideData)
-    val speed = 1800       // events of 30 minutes are served every second
+    val speed = 1800 // events of 30 minutes are served every second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -69,7 +68,9 @@ object CheckpointedLongRidesSolution {
 
     val longRides = rides
       // remove all rides which are not within NYC
-      .filter { r => GeoUtils.isInNYC(r.startLon, r.startLat) && GeoUtils.isInNYC(r.endLon, r.endLat) }
+      .filter { r =>
+      GeoUtils.isInNYC(r.startLon, r.startLat) && GeoUtils.isInNYC(r.endLon, r.endLat)
+    }
       .keyBy(_.rideId)
       .process(new MatchFunction())
 
@@ -82,11 +83,14 @@ object CheckpointedLongRidesSolution {
     // keyed, managed state
     // holds an END event if the ride has ended, otherwise a START event
     lazy val rideState: ValueState[TaxiRide] = getRuntimeContext.getState(
-      new ValueStateDescriptor[TaxiRide]("saved ride", classOf[TaxiRide]))
+      new ValueStateDescriptor[TaxiRide]("saved ride", classOf[TaxiRide])
+    )
 
-    override def processElement(ride: TaxiRide,
-                                context: KeyedProcessFunction[Long, TaxiRide, TaxiRide]#Context,
-                                out: Collector[TaxiRide]): Unit = {
+    override def processElement(
+                                 ride: TaxiRide,
+                                 context: KeyedProcessFunction[Long, TaxiRide, TaxiRide]#Context,
+                                 out: Collector[TaxiRide]
+                               ): Unit = {
       val timerService = context.timerService
 
       if (ride.isStart) {
@@ -94,17 +98,18 @@ object CheckpointedLongRidesSolution {
         if (rideState.value() == null) {
           rideState.update(ride)
         }
-      }
-      else {
+      } else {
         rideState.update(ride)
       }
 
       timerService.registerEventTimeTimer(ride.getEventTime + 120 * 60 * 1000)
     }
 
-    override def onTimer(timestamp: Long,
-                         ctx: KeyedProcessFunction[Long, TaxiRide, TaxiRide]#OnTimerContext,
-                         out: Collector[TaxiRide]): Unit = {
+    override def onTimer(
+                          timestamp: Long,
+                          ctx: KeyedProcessFunction[Long, TaxiRide, TaxiRide]#OnTimerContext,
+                          out: Collector[TaxiRide]
+                        ): Unit = {
       val savedRide = rideState.value
 
       if (savedRide != null && savedRide.isStart) {

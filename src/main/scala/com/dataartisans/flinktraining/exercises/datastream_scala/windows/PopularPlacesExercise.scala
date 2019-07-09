@@ -24,8 +24,6 @@ import org.apache.flink.api.common.functions.MapFunction
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala._
-import org.apache.flink.streaming.api.windowing.time.Time
-import org.apache.flink.util.Collector
 
 /**
  * The "Popular Places" exercise of the Flink training
@@ -47,8 +45,8 @@ object PopularPlacesExercise {
     val input = params.get("input", ExerciseBase.pathToRideData)
     val popThreshold = params.getInt("threshold", 20)
 
-    val maxDelay = 60     // events are out of order by max 60 seconds
-    val speed = 600       // events of 10 minutes are served in 1 second
+    val maxDelay = 60 // events are out of order by max 60 seconds
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up streaming execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -61,7 +59,9 @@ object PopularPlacesExercise {
     // find n most popular spots
     val popularPlaces = rides
       // remove all rides which are not within NYC
-      .filter { r => GeoUtils.isInNYC(r.startLon, r.startLat) && GeoUtils.isInNYC(r.endLon, r.endLat) }
+      .filter { r =>
+      GeoUtils.isInNYC(r.startLon, r.startLat) && GeoUtils.isInNYC(r.endLon, r.endLat)
+    }
       // match ride to grid cell and event type (start or end)
       .map(new GridCellMatcher)
 
@@ -84,4 +84,3 @@ object PopularPlacesExercise {
   }
 
 }
-

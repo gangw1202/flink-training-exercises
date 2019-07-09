@@ -16,10 +16,10 @@
 
 package com.dataartisans.flinktraining.solutions.datastream_scala.cep
 
-import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBase._
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.TaxiRide
-import com.dataartisans.flinktraining.exercises.datastream_java.sources.{CheckpointedTaxiRideSource, TaxiRideSource}
+import com.dataartisans.flinktraining.exercises.datastream_java.sources.CheckpointedTaxiRideSource
 import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBase
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBase._
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.cep.scala.pattern.Pattern
 import org.apache.flink.cep.scala.{CEP, PatternStream}
@@ -46,7 +46,7 @@ object LongRidesSolution {
     val params = ParameterTool.fromArgs(args)
     val input = params.get("input", pathToRideData)
 
-    val speed = 600   // events of 10 minutes are served in 1 second
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -61,26 +61,29 @@ object LongRidesSolution {
 
     // A complete taxi ride has a START event followed by an END event
     val completedRides = Pattern
-      .begin[TaxiRide]("start").where(_.isStart)
-      .next("end").where(!_.isStart)
+      .begin[TaxiRide]("start")
+      .where(_.isStart)
+      .next("end")
+      .where(!_.isStart)
 
     // We want to find rides that have NOT been completed within 120 minutes
     // This pattern matches rides that ARE completed.
     // Below we will ignore rides that match this pattern, and emit those that timeout.
-    val pattern: PatternStream[TaxiRide] = CEP.pattern[TaxiRide](keyedRides, completedRides.within(Time.minutes(120)))
+    val pattern: PatternStream[TaxiRide] =
+    CEP.pattern[TaxiRide](keyedRides, completedRides.within(Time.minutes(120)))
 
     // side output tag for rides that time out
     val timedoutTag = new OutputTag[TaxiRide]("timedout")
 
     // collect rides that timeout
-    val timeoutFunction = (map: Map[String, Iterable[TaxiRide]], timestamp: Long, out: Collector[TaxiRide]) => {
-      val rideStarted = map.get("start").get.head
-      out.collect(rideStarted)
-    }
+    val timeoutFunction =
+      (map: Map[String, Iterable[TaxiRide]], timestamp: Long, out: Collector[TaxiRide]) => {
+        val rideStarted = map.get("start").get.head
+        out.collect(rideStarted)
+      }
 
     // ignore rides that complete on time
-    val selectFunction = (map: Map[String, Iterable[TaxiRide]], out: Collector[TaxiRide]) => {
-    }
+    val selectFunction = (map: Map[String, Iterable[TaxiRide]], out: Collector[TaxiRide]) => {}
 
     val longRides = pattern.flatSelect(timedoutTag)(timeoutFunction)(selectFunction)
 

@@ -52,40 +52,45 @@ import scala.util.Random
   * -73.7781, 40.6413 			(JFK Airport)
   * -73.977664, 40.761484		(Museum of Modern Art)
   */
-
 case class Query(queryId: Long, longitude: Float, latitude: Float)
 
 object Query {
-  def apply(longitude: Float, latitude: Float): Query = new Query(Random.nextLong, longitude, latitude)
+  def apply(longitude: Float, latitude: Float): Query =
+    new Query(Random.nextLong, longitude, latitude)
 }
 
 object NearestTaxiSolution {
 
-  val queryDescriptor = new MapStateDescriptor[Long, Query]("queries",
-    createTypeInformation[Long], createTypeInformation[Query])
+  val queryDescriptor = new MapStateDescriptor[Long, Query](
+    "queries",
+    createTypeInformation[Long],
+    createTypeInformation[Query]
+  )
 
   def main(args: Array[String]): Unit = {
     // parse parameters
     val params = ParameterTool.fromArgs(args)
     val ridesFile = params.get("input", ExerciseBase.pathToRideData)
 
-    val maxEventDelay = 60        // events are out of order by at most 60 seconds
-    val servingSpeedFactor = 600  // 10 minutes worth of events are served every second
+    val maxEventDelay = 60 // events are out of order by at most 60 seconds
+    val servingSpeedFactor = 600 // 10 minutes worth of events are served every second
 
     // set up streaming execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
     env.setParallelism(ExerciseBase.parallelism)
 
-    val rides = env.addSource(rideSourceOrTest(
-      new TaxiRideSource(ridesFile, maxEventDelay, servingSpeedFactor)))
+    val rides = env.addSource(
+      rideSourceOrTest(new TaxiRideSource(ridesFile, maxEventDelay, servingSpeedFactor))
+    )
 
     val splitQuery = (msg: String) => {
       val parts = msg.split(",\\s*").map(_.toFloat)
       Query(parts(0), parts(1))
     }
     // add a socket source
-    val queryStream = env.socketTextStream("localhost", 9999)
+    val queryStream = env
+      .socketTextStream("localhost", 9999)
       .map(splitQuery)
       .broadcast(queryDescriptor)
 
@@ -107,12 +112,15 @@ object NearestTaxiSolution {
   class ClosestTaxi extends KeyedProcessFunction[Long, (Long, Long, Float), (Long, Long, Float)] {
     // store (taxiId, distance), keyed by queryId
     lazy val closetState: ValueState[(Long, Float)] = getRuntimeContext.getState(
-      new ValueStateDescriptor[(Long, Float)]("report", createTypeInformation[(Long, Float)]))
+      new ValueStateDescriptor[(Long, Float)]("report", createTypeInformation[(Long, Float)])
+    )
 
     // in and out tuples: (queryId, taxiId, distance)
-    override def processElement(report: (Long, Long, Float),
-                                context: KeyedProcessFunction[Long, (Long, Long, Float), (Long, Long, Float)]#Context,
-                                out: Collector[(Long, Long, Float)]): Unit =
+    override def processElement(
+                                 report: (Long, Long, Float),
+                                 context: KeyedProcessFunction[Long, (Long, Long, Float), (Long, Long, Float)]#Context,
+                                 out: Collector[(Long, Long, Float)]
+                               ): Unit =
       if (closetState.value == null || report._3 < closetState.value._2) {
         closetState.update((report._2, report._3))
         out.collect(report)
@@ -122,21 +130,28 @@ object NearestTaxiSolution {
   // Note that in order to have consistent results after a restore from a checkpoint, the
   // behavior of this method must be deterministic, and NOT depend on characterisitcs of an
   // individual sub-task.
-  class QueryFunction extends KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)]{
+  class QueryFunction
+    extends KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)] {
 
-    override def processElement(ride: TaxiRide,
-                                readOnlyContext: KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)]#ReadOnlyContext,
-                                out: Collector[(Long, Long, Float)]): Unit =
-      if (!ride.isStart) for (entry: Entry[Long, Query] <-
-             readOnlyContext.getBroadcastState(queryDescriptor).immutableEntries()) {
-        val q = entry.getValue
-        val dist = ride.getEuclideanDistance(q.longitude, q.latitude).toFloat
-        out.collect((entry.getKey, ride.taxiId, dist))
-      }
+    override def processElement(
+                                 ride: TaxiRide,
+                                 readOnlyContext: KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)]#ReadOnlyContext,
+                                 out: Collector[(Long, Long, Float)]
+                               ): Unit =
+      if (!ride.isStart)
+        for (entry: Entry[Long, Query] <- readOnlyContext
+          .getBroadcastState(queryDescriptor)
+          .immutableEntries()) {
+          val q = entry.getValue
+          val dist = ride.getEuclideanDistance(q.longitude, q.latitude).toFloat
+          out.collect((entry.getKey, ride.taxiId, dist))
+        }
 
-    override def processBroadcastElement(query: Query,
-                                         context: KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)]#Context,
-                                         out: Collector[(Long, Long, Float)]): Unit = {
+    override def processBroadcastElement(
+                                          query: Query,
+                                          context: KeyedBroadcastProcessFunction[Long, TaxiRide, Query, (Long, Long, Float)]#Context,
+                                          out: Collector[(Long, Long, Float)]
+                                        ): Unit = {
       println("New query: " + query)
       context.getBroadcastState(queryDescriptor).put(query.queryId, query)
     }

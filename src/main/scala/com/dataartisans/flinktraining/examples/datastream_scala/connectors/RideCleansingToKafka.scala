@@ -21,8 +21,8 @@ import com.dataartisans.flinktraining.exercises.datastream_java.sources.TaxiRide
 import com.dataartisans.flinktraining.exercises.datastream_java.utils.{GeoUtils, TaxiRideSchema}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.TimeCharacteristic
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011
 import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011
 
 /**
  * Scala reference implementation for the "Ride Cleansing" exercise of the Flink training
@@ -48,7 +48,7 @@ object RideCleansingToKafka {
     val input = params.getRequired("input")
 
     val maxDelay = 60 // events are out of order by max 60 seconds
-    val speed = 600   // events of 10 minutes are served in 1 second
+    val speed = 600 // events of 10 minutes are served in 1 second
 
     // set up the execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -66,7 +66,9 @@ object RideCleansingToKafka {
       new FlinkKafkaProducer011[TaxiRide](
         LOCAL_KAFKA_BROKER,
         CLEANSED_RIDES_TOPIC,
-        new TaxiRideSchema))
+        new TaxiRideSchema
+      )
+    )
 
     // run the cleansing pipeline
     env.execute("Taxi Ride Cleansing")
