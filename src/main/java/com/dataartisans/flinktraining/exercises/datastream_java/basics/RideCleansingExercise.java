@@ -22,7 +22,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.TaxiRide;
 import com.dataartisans.flinktraining.exercises.datastream_java.sources.TaxiRideSource;
 import com.dataartisans.flinktraining.exercises.datastream_java.utils.ExerciseBase;
-import com.dataartisans.flinktraining.exercises.datastream_java.utils.MissingSolutionException;
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.GeoUtils;
 
 /**
  * The "Ride Cleansing" exercise from the Flink training (http://training.ververica.com). The task of the exercise is to
@@ -65,7 +65,8 @@ public class RideCleansingExercise extends ExerciseBase {
 
         @Override
         public boolean filter(TaxiRide taxiRide) throws Exception {
-            throw new MissingSolutionException();
+            return GeoUtils.isInNYC(taxiRide.startLon, taxiRide.startLat)
+                && GeoUtils.isInNYC(taxiRide.endLon, taxiRide.endLat);
         }
     }
 }

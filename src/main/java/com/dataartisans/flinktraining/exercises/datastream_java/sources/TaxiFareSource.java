@@ -14,6 +14,7 @@
 package com.dataartisans.flinktraining.exercises.datastream_java.sources;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -98,7 +99,7 @@ public class TaxiFareSource implements SourceFunction<TaxiFare> {
     public void run(SourceContext<TaxiFare> sourceContext) throws Exception {
 
         gzipStream = new GZIPInputStream(new FileInputStream(dataFilePath));
-        reader = new BufferedReader(new InputStreamReader(gzipStream, "UTF-8"));
+        reader = new BufferedReader(new InputStreamReader(gzipStream, StandardCharsets.UTF_8));
 
         generateUnorderedStream(sourceContext);
 
