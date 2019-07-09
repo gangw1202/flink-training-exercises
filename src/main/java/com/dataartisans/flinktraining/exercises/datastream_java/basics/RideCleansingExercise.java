@@ -14,10 +14,12 @@
 package com.dataartisans.flinktraining.exercises.datastream_java.basics;
 
 import org.apache.flink.api.common.functions.FilterFunction;
+import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.util.Collector;
 
 import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.TaxiRide;
 import com.dataartisans.flinktraining.exercises.datastream_java.sources.TaxiRideSource;
@@ -50,9 +52,19 @@ public class RideCleansingExercise extends ExerciseBase {
         DataStream<TaxiRide> rides =
             env.addSource(rideSourceOrTest(new TaxiRideSource(input, maxEventDelay, servingSpeedFactor)));
 
-        DataStream<TaxiRide> filteredRides = rides
-            // filter out rides that do not start or stop in NYC
-            .filter(new NYCFilter());
+        // filter out rides that do not start or stop in NYC
+        DataStream<TaxiRide> filteredRides = rides.flatMap(new FlatMapFunction<TaxiRide, TaxiRide>() {
+            @Override
+            public void flatMap(TaxiRide taxiRide, Collector<TaxiRide> out) throws Exception {
+                if (GeoUtils.isInNYC(taxiRide.startLon, taxiRide.startLat)
+                    && GeoUtils.isInNYC(taxiRide.endLon, taxiRide.endLat)) {
+                    out.collect(taxiRide);
+                }
+            }
+        });
+
+        // by filter
+        // DataStream<TaxiRide> filteredRides = rides.filter(new NYCFilter());
 
         // print the filtered stream
         printOrTest(filteredRides);
