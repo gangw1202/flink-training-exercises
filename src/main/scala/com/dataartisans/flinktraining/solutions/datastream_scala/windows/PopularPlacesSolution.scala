@@ -44,7 +44,7 @@ object PopularPlacesSolution {
 
     // read parameters
     val params = ParameterTool.fromArgs(args)
-    val input = params.get("input", pathToRideData)
+    val input = params.get("input", PATH_TO_RIDE_DATA)
     val popThreshold = params.getInt("threshold", 20)
 
     val maxDelay = 60 // events are out of order by max 60 seconds

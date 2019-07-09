@@ -42,7 +42,7 @@ public class HourlyTipsSolution extends ExerciseBase {
 
         // read parameters
         ParameterTool params = ParameterTool.fromArgs(args);
-        final String input = params.get("input", ExerciseBase.pathToFareData);
+        final String input = params.get("input", ExerciseBase.PATH_TO_FARE_DATA);
 
         final int maxEventDelay = 60; // events are out of order by max 60 seconds
         final int servingSpeedFactor = 600; // events of 10 minutes are served in 1 second

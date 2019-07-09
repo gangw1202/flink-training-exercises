@@ -46,8 +46,8 @@ object ExpiringStateSolution {
 
     // parse parameters
     val params = ParameterTool.fromArgs(args)
-    val ridesFile = params.get("rides", ExerciseBase.pathToRideData)
-    val faresFile = params.get("fares", ExerciseBase.pathToFareData)
+    val ridesFile = params.get("rides", ExerciseBase.PATH_TO_RIDE_DATA)
+    val faresFile = params.get("fares", ExerciseBase.PATH_TO_FARE_DATA)
 
     val servingSpeedFactor = 600 // 10 minutes worth of events are served every second
 
